@@ -106,6 +106,8 @@ Ensure your n8n instance allows API access:
 
 ### Option 2: Deploy with Docker
 
+**Note:** This project includes `package.docker.json` which is used during Docker builds since `package.json` is managed by Lovable and not in git.
+
 ```bash
 # Build the Docker image
 docker build -t nexus-aura-watch:latest .

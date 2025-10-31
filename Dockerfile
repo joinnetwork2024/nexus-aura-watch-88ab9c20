@@ -3,7 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy all source files (package.json is read-only, so we copy everything)
+# Copy package.docker.json as package.json for Docker builds
+COPY package.docker.json package.json
+
+# Copy other source files
 COPY . .
 
 # Install dependencies
