@@ -11,16 +11,18 @@ import { N8N_CONFIG } from "@/config/n8n";
 const Index = () => {
   const { toast } = useToast();
 
-  const { data: workflows = [], isLoading } = useQuery({
+  const { data: workflows = [], isLoading, error: workflowError } = useQuery({
     queryKey: ['n8n-workflows'],
     queryFn: n8nApi.getWorkflows,
     refetchInterval: 10000, // Refresh every 10 seconds
+    retry: 2,
   });
 
-  const { data: executions = [] } = useQuery({
+  const { data: executions = [], error: executionError } = useQuery({
     queryKey: ['n8n-executions'],
     queryFn: n8nApi.getExecutions,
     refetchInterval: 5000, // Refresh every 5 seconds
+    retry: 2,
   });
 
   const activeWorkflows = Array.isArray(workflows) ? workflows.filter(w => w.active).length : 0;
@@ -81,8 +83,18 @@ const Index = () => {
           <h2 className="text-2xl font-bold text-primary mb-4 text-glow">ACTIVE WORKFLOWS</h2>
           {isLoading ? (
             <p className="text-muted-foreground">Loading workflows...</p>
+          ) : workflowError ? (
+            <div className="bg-error/10 border border-error p-4 rounded-lg">
+              <p className="text-error font-semibold">Connection Error</p>
+              <p className="text-muted-foreground text-sm mt-2">
+                Failed to connect to n8n at {N8N_CONFIG.baseUrl}
+              </p>
+              <p className="text-muted-foreground text-xs mt-1">
+                Check browser console for details. This might be a CORS issue.
+              </p>
+            </div>
           ) : !Array.isArray(workflows) || workflows.length === 0 ? (
-            <p className="text-muted-foreground">No workflows found. Check n8n connection at {N8N_CONFIG.baseUrl}</p>
+            <p className="text-muted-foreground">No workflows found at {N8N_CONFIG.baseUrl}</p>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {workflows.map((workflow) => (
