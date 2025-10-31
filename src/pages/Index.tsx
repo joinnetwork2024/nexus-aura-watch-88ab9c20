@@ -3,14 +3,34 @@ import { StatCard } from "@/components/StatCard";
 import { WorkflowCard } from "@/components/WorkflowCard";
 import { ExecutionHistory } from "@/components/ExecutionHistory";
 import { Activity, Zap, CheckCircle2, TrendingUp } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { n8nApi } from "@/services/n8nApi";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const workflows = [
-    { name: "Data Processing Pipeline", enabled: true, lastExecution: "2 min ago", executions: 1247, successRate: 98 },
-    { name: "Email Notification System", enabled: true, lastExecution: "5 min ago", executions: 892, successRate: 95 },
-    { name: "API Data Sync", enabled: true, lastExecution: "8 min ago", executions: 2341, successRate: 87 },
-    { name: "Backup Automation", enabled: false, lastExecution: "2 hours ago", executions: 156, successRate: 72 },
-  ];
+  const { toast } = useToast();
+
+  const { data: workflows = [], isLoading } = useQuery({
+    queryKey: ['n8n-workflows'],
+    queryFn: n8nApi.getWorkflows,
+    refetchInterval: 10000, // Refresh every 10 seconds
+  });
+
+  const { data: executions = [] } = useQuery({
+    queryKey: ['n8n-executions'],
+    queryFn: n8nApi.getExecutions,
+    refetchInterval: 5000, // Refresh every 5 seconds
+  });
+
+  const activeWorkflows = Array.isArray(workflows) ? workflows.filter(w => w.active).length : 0;
+  const totalWorkflows = Array.isArray(workflows) ? workflows.length : 0;
+  const todayExecutions = Array.isArray(executions) ? executions.filter(e => {
+    const today = new Date().toDateString();
+    return new Date(e.startedAt).toDateString() === today;
+  }).length : 0;
+  const successRate = Array.isArray(executions) && executions.length > 0 
+    ? Math.round((executions.filter(e => e.status === 'success').length / executions.length) * 100)
+    : 0;
 
   return (
     <div className="min-h-screen relative">
@@ -27,30 +47,30 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard 
             title="Total Workflows" 
-            value={12}
+            value={totalWorkflows}
             icon={Zap}
-            trend="+2 this week"
+            trend={isLoading ? "Loading..." : "Total workflows"}
             variant="default"
           />
           <StatCard 
             title="Active Workflows" 
-            value={8}
+            value={activeWorkflows}
             icon={Activity}
-            trend="67% of total"
+            trend={`${totalWorkflows > 0 ? Math.round((activeWorkflows / totalWorkflows) * 100) : 0}% of total`}
             variant="success"
           />
           <StatCard 
             title="Executions Today" 
-            value="1.2K"
+            value={todayExecutions}
             icon={TrendingUp}
-            trend="+18% from yesterday"
+            trend="Today's runs"
             variant="default"
           />
           <StatCard 
             title="Success Rate" 
-            value="94%"
+            value={`${successRate}%`}
             icon={CheckCircle2}
-            trend="Above target"
+            trend={successRate >= 90 ? "Above target" : "Needs attention"}
             variant="success"
           />
         </div>
@@ -58,11 +78,24 @@ const Index = () => {
         {/* Workflows Grid */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-primary mb-4 text-glow">ACTIVE WORKFLOWS</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {workflows.map((workflow) => (
-              <WorkflowCard key={workflow.name} {...workflow} />
-            ))}
-          </div>
+          {isLoading ? (
+            <p className="text-muted-foreground">Loading workflows...</p>
+          ) : !Array.isArray(workflows) || workflows.length === 0 ? (
+            <p className="text-muted-foreground">No workflows found. Check n8n connection at 10.43.58.226</p>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {workflows.map((workflow) => (
+                <WorkflowCard 
+                  key={workflow.id} 
+                  name={workflow.name}
+                  enabled={workflow.active}
+                  lastExecution={new Date(workflow.updatedAt).toLocaleString()}
+                  executions={0}
+                  successRate={0}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Execution History */}
