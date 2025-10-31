@@ -6,6 +6,7 @@ import { Activity, Zap, CheckCircle2, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { n8nApi } from "@/services/n8nApi";
 import { useToast } from "@/hooks/use-toast";
+import { N8N_CONFIG } from "@/config/n8n";
 
 const Index = () => {
   const { toast } = useToast();
@@ -81,7 +82,7 @@ const Index = () => {
           {isLoading ? (
             <p className="text-muted-foreground">Loading workflows...</p>
           ) : !Array.isArray(workflows) || workflows.length === 0 ? (
-            <p className="text-muted-foreground">No workflows found. Check n8n connection at 10.43.58.226</p>
+            <p className="text-muted-foreground">No workflows found. Check n8n connection at {N8N_CONFIG.baseUrl}</p>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {workflows.map((workflow) => (
