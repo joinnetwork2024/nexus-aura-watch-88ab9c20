@@ -1,4 +1,4 @@
-import { getN8nApiUrl } from '@/config/n8n';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface N8nWorkflow {
   id: string;
@@ -18,25 +18,32 @@ export interface N8nExecution {
   status: 'success' | 'error' | 'running' | 'waiting';
 }
 
+const callN8nProxy = async (endpoint: string) => {
+  const { data, error } = await supabase.functions.invoke('n8n-proxy', {
+    body: { endpoint },
+  });
+
+  if (error) {
+    console.error('Edge function error:', error);
+    throw new Error(error.message || 'Failed to call n8n proxy');
+  }
+
+  return data;
+};
+
 export const n8nApi = {
   async getWorkflows(): Promise<N8nWorkflow[]> {
-    const response = await fetch(getN8nApiUrl('/workflows'));
-    if (!response.ok) throw new Error('Failed to fetch workflows');
-    const data = await response.json();
+    const data = await callN8nProxy('/api/v1/workflows');
     return data.data || [];
   },
 
   async getExecutions(): Promise<N8nExecution[]> {
-    const response = await fetch(getN8nApiUrl('/executions'));
-    if (!response.ok) throw new Error('Failed to fetch executions');
-    const data = await response.json();
+    const data = await callN8nProxy('/api/v1/executions');
     return data.data || [];
   },
 
   async getWorkflowExecutions(workflowId: string): Promise<N8nExecution[]> {
-    const response = await fetch(getN8nApiUrl(`/executions?workflowId=${workflowId}`));
-    if (!response.ok) throw new Error('Failed to fetch workflow executions');
-    const data = await response.json();
+    const data = await callN8nProxy(`/api/v1/executions?workflowId=${workflowId}`);
     return data.data || [];
   },
 };
