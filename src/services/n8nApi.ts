@@ -1,4 +1,4 @@
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://npyhqdehavuehzofzrcg.supabase.co';
 const PROXY_URL = `${SUPABASE_URL}/functions/v1/n8n-proxy`;
 
 export interface N8nWorkflow {
