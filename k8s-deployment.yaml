@@ -23,8 +23,8 @@ spec:
     spec:
       containers:
       - name: n8n-monitor
-        image: n8n-monitor:latest  # Update with your registry: your-registry/n8n-monitor:latest
-        imagePullPolicy: IfNotPresent
+        image: nexus-aura-watch:latest  # IMPORTANT: Update with your registry: your-registry/nexus-aura-watch:latest
+        imagePullPolicy: Always  # Changed to Always to ensure latest image is pulled
         ports:
         - containerPort: 8080
           name: http

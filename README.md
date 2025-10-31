@@ -173,24 +173,45 @@ npm run build
    nano src/config/n8n.ts
    ```
 
-3. **Build Docker image**
+3. **Build Docker image (IMPORTANT: Use the correct Dockerfile)**
    ```bash
-   docker build -t n8n-monitor:latest .
+   # Build with the multi-stage Dockerfile (uses Nginx, not npm)
+   docker build -t nexus-aura-watch:latest .
+   
+   # Verify the build succeeded
+   docker images | grep nexus-aura-watch
    ```
 
-4. **Push to registry (optional)**
+4. **Test locally first (recommended)**
    ```bash
-   docker tag n8n-monitor:latest your-registry/n8n-monitor:latest
-   docker push your-registry/n8n-monitor:latest
+   # Test the image locally before deploying to Kubernetes
+   docker run -d -p 3000:8080 nexus-aura-watch:latest
+   
+   # Check if it's working
+   curl http://localhost:3000
+   
+   # Stop the test container
+   docker stop $(docker ps -q --filter ancestor=nexus-aura-watch:latest)
    ```
 
-5. **Update Kubernetes manifest**
+5. **Push to registry (REQUIRED for Kubernetes)**
    ```bash
-   # Edit k8s-deployment.yaml with your image registry
+   # Tag with your registry
+   docker tag nexus-aura-watch:latest your-registry/nexus-aura-watch:latest
+   
+   # Push to registry
+   docker push your-registry/nexus-aura-watch:latest
+   ```
+
+6. **Update Kubernetes manifest**
+   ```bash
+   # Edit k8s-deployment.yaml line 26 with your image registry
+   # Change: image: nexus-aura-watch:latest
+   # To: image: your-registry/nexus-aura-watch:latest
    nano k8s-deployment.yaml
    ```
 
-6. **Deploy to Kubernetes**
+7. **Deploy to Kubernetes**
    ```bash
    kubectl apply -f k8s-deployment.yaml
    ```
