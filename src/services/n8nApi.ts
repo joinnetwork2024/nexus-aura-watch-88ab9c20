@@ -1,5 +1,5 @@
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://npyhqdehavuehzofzrcg.supabase.co';
-const PROXY_URL = `${SUPABASE_URL}/functions/v1/n8n-proxy`;
+import { getN8nApiUrl } from '@/config/n8n';
+import { N8N_CONFIG } from '@/config/n8n';
 
 export interface N8nWorkflow {
   id: string;
@@ -22,11 +22,11 @@ export interface N8nExecution {
 export const n8nApi = {
   async getWorkflows(): Promise<N8nWorkflow[]> {
     try {
-      console.log('Fetching workflows via proxy:', PROXY_URL);
-      const response = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint: '/api/v1/workflows' }),
+      console.log('Fetching workflows from:', getN8nApiUrl('/workflows'));
+      const response = await fetch(getN8nApiUrl('/workflows'), {
+        headers: {
+          'X-N8N-API-KEY': N8N_CONFIG.apiKey,
+        },
       });
       console.log('Response status:', response.status);
       if (!response.ok) {
@@ -45,11 +45,11 @@ export const n8nApi = {
 
   async getExecutions(): Promise<N8nExecution[]> {
     try {
-      console.log('Fetching executions via proxy:', PROXY_URL);
-      const response = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint: '/api/v1/executions' }),
+      console.log('Fetching executions from:', getN8nApiUrl('/executions'));
+      const response = await fetch(getN8nApiUrl('/executions'), {
+        headers: {
+          'X-N8N-API-KEY': N8N_CONFIG.apiKey,
+        },
       });
       console.log('Response status:', response.status);
       if (!response.ok) {
@@ -67,10 +67,10 @@ export const n8nApi = {
   },
 
   async getWorkflowExecutions(workflowId: string): Promise<N8nExecution[]> {
-    const response = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endpoint: `/api/v1/executions?workflowId=${workflowId}` }),
+    const response = await fetch(getN8nApiUrl(`/executions?workflowId=${workflowId}`), {
+      headers: {
+        'X-N8N-API-KEY': N8N_CONFIG.apiKey,
+      },
     });
     if (!response.ok) throw new Error('Failed to fetch workflow executions');
     const data = await response.json();
