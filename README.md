@@ -2,6 +2,15 @@
 
 A real-time monitoring dashboard for n8n workflows with a stunning cyberpunk aesthetic.
 
+## Features
+
+- 📊 Real-time workflow monitoring
+- 🔄 Auto-refresh every 5-10 seconds
+- 📈 Live execution history
+- 🎨 Cyberpunk-themed UI
+- 📱 Fully responsive design
+- ⚡ Built with React, TypeScript, and Tailwind CSS
+
 ## Project info
 
 **URL**: https://lovable.dev/projects/427ae7f1-b491-4958-8814-3c6bbde15fdb
@@ -62,14 +71,168 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## Configuration
 
-Simply open [Lovable](https://lovable.dev/projects/427ae7f1-b491-4958-8814-3c6bbde15fdb) and click on Share -> Publish.
+Before deploying, update the n8n instance IP address in `src/config/n8n.ts`:
 
-## Can I connect a custom domain to my Lovable project?
+```typescript
+export const N8N_CONFIG = {
+  baseUrl: 'http://10.43.58.226:5678',  // Update this to your n8n instance
+  apiPath: '/api/v1',
+};
+```
 
-Yes, you can!
+### n8n API Configuration
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Ensure your n8n instance allows API access:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. **Enable CORS** in n8n configuration
+2. **Generate API Key** in n8n Settings → API
+3. **Update the dashboard** to include authentication if needed
+
+## Deployment Options
+
+### Option 1: Deploy via Lovable (Easiest)
+
+1. Open [Lovable](https://lovable.dev/projects/427ae7f1-b491-4958-8814-3c6bbde15fdb)
+2. Click **Publish** button (top right)
+3. Your dashboard will be live at `yoursite.lovable.app`
+
+**Custom Domain:**
+- Navigate to Project > Settings > Domains
+- Click Connect Domain
+- Follow the DNS configuration steps
+- [Learn more](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+### Option 2: Deploy with Docker
+
+```bash
+# Build the Docker image
+docker build -t n8n-monitor .
+
+# Run the container
+docker run -d -p 8080:8080 n8n-monitor
+```
+
+Access the dashboard at `http://localhost:8080`
+
+### Option 3: Deploy to Kubernetes
+
+```bash
+# Apply the Kubernetes deployment
+kubectl apply -f k8s-deployment.yaml
+
+# Check deployment status
+kubectl get pods
+kubectl get services
+
+# Access via NodePort (default: 30080)
+# Or configure an Ingress for production
+```
+
+### Option 4: Deploy to Static Hosting
+
+Build the project and deploy to any static hosting service:
+
+```bash
+# Build for production
+npm run build
+
+# The 'dist' folder contains your static files
+# Upload to: Vercel, Netlify, GitHub Pages, AWS S3, etc.
+```
+
+**Popular Hosting Services:**
+
+- **Vercel**: `vercel deploy`
+- **Netlify**: Drag & drop the `dist` folder
+- **GitHub Pages**: Push `dist` to `gh-pages` branch
+- **AWS S3**: Upload `dist` to S3 bucket + CloudFront
+
+## Deployment Steps (Kubernetes)
+
+### Prerequisites
+- Kubernetes cluster running
+- kubectl configured
+- n8n instance accessible at configured IP
+
+### Step-by-Step Deployment
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/joinnetwork2024/n8n-start.git
+   cd n8n-start
+   ```
+
+2. **Update n8n configuration**
+   ```bash
+   # Edit src/config/n8n.ts with your n8n IP
+   nano src/config/n8n.ts
+   ```
+
+3. **Build Docker image**
+   ```bash
+   docker build -t n8n-monitor:latest .
+   ```
+
+4. **Push to registry (optional)**
+   ```bash
+   docker tag n8n-monitor:latest your-registry/n8n-monitor:latest
+   docker push your-registry/n8n-monitor:latest
+   ```
+
+5. **Update Kubernetes manifest**
+   ```bash
+   # Edit k8s-deployment.yaml with your image registry
+   nano k8s-deployment.yaml
+   ```
+
+6. **Deploy to Kubernetes**
+   ```bash
+   kubectl apply -f k8s-deployment.yaml
+   ```
+
+7. **Verify deployment**
+   ```bash
+   kubectl get pods -n default
+   kubectl get svc -n default
+   ```
+
+8. **Access the dashboard**
+   ```bash
+   # Get the service URL
+   kubectl get svc n8n-monitor-service
+   
+   # Access via NodePort: http://<node-ip>:30080
+   # Or configure Ingress for production access
+   ```
+
+## Environment Variables
+
+No environment variables required for basic setup. All configuration is in `src/config/n8n.ts`.
+
+For production, consider adding:
+- `N8N_API_KEY` - n8n API authentication key
+- `N8N_BASE_URL` - n8n instance URL
+
+## Monitoring & Troubleshooting
+
+### Check n8n connectivity
+```bash
+curl http://10.43.58.226:5678/api/v1/workflows
+```
+
+### View application logs
+```bash
+# Docker
+docker logs <container-id>
+
+# Kubernetes
+kubectl logs -f deployment/n8n-monitor
+```
+
+### Common Issues
+
+1. **CORS errors**: Enable CORS in n8n settings
+2. **Connection refused**: Check n8n is running and accessible
+3. **Empty dashboard**: Verify n8n API endpoint and permissions
