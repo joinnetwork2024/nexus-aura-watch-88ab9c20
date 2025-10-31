@@ -1,4 +1,6 @@
-# Welcome to your Lovable project
+# n8n Workflow Monitor - Cyberpunk Dashboard
+
+A real-time monitoring dashboard for n8n workflows with a stunning cyberpunk aesthetic.
 
 ## Project info
 
