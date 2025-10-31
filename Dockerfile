@@ -3,14 +3,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies (using npm install since project uses bun.lockb)
-RUN npm install --legacy-peer-deps
-
-# Copy source code
+# Copy all source files (package.json is read-only, so we copy everything)
 COPY . .
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
 
 # Build the application
 RUN npm run build
