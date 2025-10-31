@@ -1,3 +1,4 @@
+// n8n Workflow Monitor - Cyberpunk Dashboard
 import { StatCard } from "@/components/StatCard";
 import { WorkflowCard } from "@/components/WorkflowCard";
 import { ExecutionHistory } from "@/components/ExecutionHistory";
