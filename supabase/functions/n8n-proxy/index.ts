@@ -19,12 +19,8 @@ serve(async (req) => {
       throw new Error('Endpoint is required');
     }
 
-    const n8nBaseUrl = Deno.env.get('N8N_BASE_URL');
-    const n8nApiKey = Deno.env.get('N8N_API_KEY');
-
-    if (!n8nBaseUrl || !n8nApiKey) {
-      throw new Error('N8N configuration is missing');
-    }
+    const n8nBaseUrl = Deno.env.get('N8N_BASE_URL') || 'http://192.168.1.125:32299';
+    const n8nApiKey = Deno.env.get('N8N_API_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwZTkzNzRlYS1mZjU0LTQ1YjQtYTdkOS0xZjU3N2QyMTE5YjAiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYxODcwMTk1LCJleHAiOjE3NjQzOTI0MDB9.eUSqgLm7JuZrZgscYA-00OYgaqghEl-IyM72vYSAW6w';
 
     console.log(`Proxying request to: ${n8nBaseUrl}${endpoint}`);
 
