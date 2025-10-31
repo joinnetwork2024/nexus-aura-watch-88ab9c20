@@ -108,13 +108,16 @@ Ensure your n8n instance allows API access:
 
 ```bash
 # Build the Docker image
-docker build -t n8n-monitor .
+docker build -t nexus-aura-watch:latest .
 
-# Run the container
-docker run -d -p 8080:8080 n8n-monitor
+# Run the container (maps host port 3000 to container port 8080)
+docker run -d -p 3000:8080 nexus-aura-watch:latest
+
+# Or use port 8080 on host as well
+docker run -d -p 8080:8080 nexus-aura-watch:latest
 ```
 
-Access the dashboard at `http://localhost:8080`
+Access the dashboard at `http://localhost:3000` (or `http://localhost:8080` if using second command)
 
 ### Option 3: Deploy to Kubernetes
 
